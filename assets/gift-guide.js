@@ -1,18 +1,4 @@
-/**
- * Gift Guide Grid - popup + Add to Cart logic.
- * Pure vanilla JavaScript, no jQuery, no external libraries.
- *
- * Flow:
- *   1. User clicks a "+" hotspot on a product image in the grid.
- *   2. We fetch that product's data from Shopify's public Product JSON
- *      endpoint (/products/<handle>.js).
- *   3. We render the popup: title, price, description, and a variant
- *      picker built dynamically from product.options / product.variants.
- *   4. Changing an option re-matches the selected variant, updating the
- *      price and image.
- *   5. "Add to Cart" posts the selected variant id to /cart/add.js
- *      (Shopify's AJAX Cart API) and shows success/error feedback.
- */
+
 
 (function () {
   'use strict';
@@ -34,11 +20,7 @@
   var currentProduct = null;
   var selectedOptions = [];
 
-  /**
-   * Formats a price given in cents into a currency string using the
-   * shop's active currency (falls back to a plain "$" prefix if the
-   * Shopify.currency object isn't available on the page).
-   */
+
   function formatMoney(cents) {
     var amount = (cents / 100).toFixed(2);
     if (window.Shopify && window.Shopify.currency && window.Shopify.currency.active) {
@@ -47,9 +29,7 @@
     return '$' + amount;
   }
 
-  /**
-   * Finds the variant that matches the currently selected options.
-   */
+
   function getSelectedVariant() {
     if (!currentProduct) return null;
     return currentProduct.variants.find(function (variant) {
@@ -59,14 +39,7 @@
     });
   }
 
-  /**
-   * Renders one <select> per product option (e.g. Size, Color).
-   *
-   * Note: Shopify's /products/<handle>.js response returns `options` as
-   * an array of OBJECTS - { name, position, values } - not plain
-   * strings. We read `.name` and `.values` directly instead of
-   * re-deriving them from the variants list.
-   */
+
   function renderOptions(product) {
     optionsEl.innerHTML = '';
 
@@ -103,11 +76,7 @@
     });
   }
 
-  /**
-   * Updates price/image/button state to reflect whichever variant
-   * is currently selected (or shows "unavailable" if that exact
-   * combination doesn't exist as a variant).
-   */
+  
   function updateForSelectedVariant() {
     var variant = getSelectedVariant();
 
@@ -170,10 +139,7 @@
     selectedOptions = [];
   }
 
-  /**
-   * Adds the currently selected variant to the cart via Shopify's
-   * AJAX Cart API, then gives the user visible feedback.
-   */
+  
   function addSelectedVariantToCart() {
     var variantId = addToCartBtn.dataset.variantId;
     if (!variantId) return;
@@ -193,13 +159,7 @@
       .then(function () {
         feedbackEl.textContent = 'Added to cart!';
 
-        // Horizon's header cart icon is built with internal web
-        // components and doesn't expose a standalone renderable
-        // section the way Dawn-based themes do, so we can't patch its
-        // count via the Sections Rendering API. The reliable,
-        // theme-agnostic fix is a short delay (so the shopper sees the
-        // confirmation message) followed by reloading the page, which
-        // guarantees the header cart count is correct.
+ 
         setTimeout(function () {
           window.location.reload();
         }, 700);
