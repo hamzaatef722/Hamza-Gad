@@ -174,39 +174,6 @@
    * Adds the currently selected variant to the cart via Shopify's
    * AJAX Cart API, then gives the user visible feedback.
    */
-  /**
-   * Refreshes the header cart icon's item-count bubble after an
-   * Add to Cart, so the shopper sees the new total immediately
-   * without reloading the page.
-   *
-   * We use Shopify's standard "sections rendering" endpoint
-   * (documented, theme-agnostic) rather than relying on any theme's
-   * internal JS event system, which can vary or change between
-   * theme versions. If the theme doesn't expose a #cart-icon-bubble
-   * section (unlikely, but just in case), this silently does nothing
-   * and the count will still be correct on the next page load.
-   */
-  function refreshCartBubble() {
-    fetch('/?sections=cart-icon-bubble')
-      .then(function (response) { return response.json(); })
-      .then(function (sections) {
-        var html = sections['cart-icon-bubble'];
-        if (!html) return;
-
-        var temp = document.createElement('div');
-        temp.innerHTML = html;
-        var newBubble = temp.querySelector('#cart-icon-bubble');
-        var oldBubble = document.querySelector('#cart-icon-bubble');
-
-        if (newBubble && oldBubble) {
-          oldBubble.replaceWith(newBubble);
-        }
-      })
-      .catch(function (error) {
-        console.error('Gift Guide: could not refresh cart bubble', error);
-      });
-  }
-
   function addSelectedVariantToCart() {
     var variantId = addToCartBtn.dataset.variantId;
     if (!variantId) return;
@@ -225,8 +192,17 @@
       })
       .then(function () {
         feedbackEl.textContent = 'Added to cart!';
-        refreshCartBubble();
-        document.dispatchEvent(new CustomEvent('cart:updated'));
+
+        // Horizon's header cart icon is built with internal web
+        // components and doesn't expose a standalone renderable
+        // section the way Dawn-based themes do, so we can't patch its
+        // count via the Sections Rendering API. The reliable,
+        // theme-agnostic fix is a short delay (so the shopper sees the
+        // confirmation message) followed by reloading the page, which
+        // guarantees the header cart count is correct.
+        setTimeout(function () {
+          window.location.reload();
+        }, 700);
       })
       .catch(function (error) {
         console.error('Gift Guide: add to cart failed', error);
