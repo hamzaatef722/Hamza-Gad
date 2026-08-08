@@ -129,7 +129,7 @@
   display: inline-flex;
   align-items: center;
   gap: 10px;
- padding: 14px 55px;
+  padding: 14px 24px;
   color: #fff;
   text-decoration: none;
   font-weight: 600;
@@ -370,6 +370,12 @@
   .gift-banner__content {
     margin-left: 0;
     max-width: 100%;
+    /* On mobile the illustration can sit directly behind the text
+       (unlike desktop's wide layout), so we add a soft white scrim
+       to keep the heading/description readable over busy imagery. */
+    background: rgba(255, 255, 255, 0.85);
+    padding: 20px;
+    border-radius: 4px;
   }
 
   .gift-banner__heading {
