@@ -1,9 +1,4 @@
-/*
-  Gift Guide styling.
-  The Figma design canvas is 3840px wide (a 2.5x mockup of a ~1536px
-  desktop viewport). All desktop measurements below are the Figma
-  values divided by 2.5 to land on real, usable CSS pixel sizes.
-*/
+
 
 /* ---------- Banner ---------- */
 
@@ -49,8 +44,7 @@
   cursor: pointer;
 }
 
-/* Sweep animation: on hover, a black layer slides in from the left,
-   covering the button's yellow resting background. */
+
 .gift-banner__cta::before {
   content: '';
   position: absolute;
@@ -138,8 +132,7 @@
   cursor: pointer;
 }
 
-/* Same left-to-right yellow sweep as the top CTA button. Text switches
-   to black on hover so it stays readable against the yellow fill. */
+
 .gift-banner__shopnow::before {
   content: '';
   position: absolute;
@@ -371,9 +364,7 @@
     margin-left: 0;
     max-width: 100%;
     text-align: center;
-    /* On mobile the illustration can sit directly behind the text
-       (unlike desktop's wide layout), so we add a soft white scrim
-       to keep the heading/description readable over busy imagery. */
+
     background: rgba(255, 255, 255, 0.85);
     padding: 20px;
     border-radius: 4px;
