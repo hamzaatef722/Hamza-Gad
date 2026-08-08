@@ -28,6 +28,52 @@
     },
     "grid": {
       "type": "gift-guide-grid",
+      "blocks": {
+        "product_F68HkT": {
+          "type": "product",
+          "settings": {
+            "product": "silk-summer-top"
+          }
+        },
+        "product_6pYffC": {
+          "type": "product",
+          "settings": {
+            "product": "olive-green-jacket"
+          }
+        },
+        "product_rVCTRn": {
+          "type": "product",
+          "settings": {
+            "product": "led-high-tops"
+          }
+        },
+        "product_AeiHD4": {
+          "type": "product",
+          "settings": {
+            "product": "classic-varsity-top"
+          }
+        },
+        "product_yFtWAV": {
+          "type": "product",
+          "settings": {
+            "product": "navy-sport-jacket"
+          }
+        },
+        "product_aYTKTP": {
+          "type": "product",
+          "settings": {
+            "product": "dark-winter-jacket"
+          }
+        }
+      },
+      "block_order": [
+        "product_F68HkT",
+        "product_6pYffC",
+        "product_rVCTRn",
+        "product_AeiHD4",
+        "product_yFtWAV",
+        "product_aYTKTP"
+      ],
       "settings": {}
     }
   },
