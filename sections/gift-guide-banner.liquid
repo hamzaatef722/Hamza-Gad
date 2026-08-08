@@ -1,0 +1,169 @@
+
+
+<section class="gift-banner" id="gift-banner-{{ section.id }}">
+  <div class="gift-banner__inner">
+
+    <!-- Top bar: logo, tagline, CTA button -->
+    <div class="gift-banner__topbar">
+      <p class="gift-banner__logo">{{ section.settings.logo_text }}</p>
+      <p class="gift-banner__tagline">{{ section.settings.tagline_text }}</p>
+      {% if section.settings.cta_link != blank %}
+        <a href="{{ section.settings.cta_link }}" class="gift-banner__cta">
+      {% else %}
+        <span class="gift-banner__cta">
+      {% endif %}
+        <span class="gift-banner__cta-text">{{ section.settings.cta_text }}</span>
+        <span class="gift-banner__cta-arrow" aria-hidden="true">&rarr;</span>
+      {% if section.settings.cta_link != blank %}
+        </a>
+      {% else %}
+        </span>
+      {% endif %}
+    </div>
+
+    <!-- Main hero area: illustration background + heading/description/shop-now -->
+    <div class="gift-banner__hero">
+      {% if section.settings.background_illustration %}
+        <img
+          class="gift-banner__illustration"
+          src="{{ section.settings.background_illustration | image_url: width: 2000 }}"
+          alt=""
+          loading="lazy"
+          width="{{ section.settings.background_illustration.width }}"
+          height="{{ section.settings.background_illustration.height }}"
+        >
+      {% endif %}
+
+      <div class="gift-banner__content">
+        <h1 class="gift-banner__heading">{{ section.settings.heading }}</h1>
+        <p class="gift-banner__description">{{ section.settings.description }}</p>
+
+        {% if section.settings.shop_now_link != blank %}
+          <a href="{{ section.settings.shop_now_link }}" class="gift-banner__shopnow">
+        {% else %}
+          <span class="gift-banner__shopnow">
+        {% endif %}
+          <span class="gift-banner__shopnow-text">{{ section.settings.shop_now_text }}</span>
+          <span class="gift-banner__shopnow-arrow" aria-hidden="true">&rarr;</span>
+        {% if section.settings.shop_now_link != blank %}
+          </a>
+        {% else %}
+          </span>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Bottom strip -->
+    <div class="gift-banner__bottom">
+      <p>{{ section.settings.bottom_text }}</p>
+    </div>
+
+  </div>
+</section>
+
+{{ 'gift-guide.css' | asset_url | stylesheet_tag }}
+
+<style>
+  #gift-banner-{{ section.id }} .gift-banner__cta {
+    background-color: {{ section.settings.cta_bg_color }};
+  }
+  #gift-banner-{{ section.id }} .gift-banner__shopnow {
+    background-color: {{ section.settings.shop_now_bg_color }};
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Gift Guide Banner",
+  "tag": "section",
+  "class": "section-gift-banner",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Top bar"
+    },
+    {
+      "type": "text",
+      "id": "logo_text",
+      "label": "Logo text",
+      "default": "TISSO VISON"
+    },
+    {
+      "type": "text",
+      "id": "tagline_text",
+      "label": "Tagline text",
+      "default": "Find the ideal gift for your loved ones."
+    },
+    {
+      "type": "text",
+      "id": "cta_text",
+      "label": "Top button text",
+      "default": "CHOOSE GIFT"
+    },
+    {
+      "type": "url",
+      "id": "cta_link",
+      "label": "Top button link"
+    },
+    {
+      "type": "color",
+      "id": "cta_bg_color",
+      "label": "Top button background color",
+      "default": "#FFF544"
+    },
+    {
+      "type": "header",
+      "content": "Hero content"
+    },
+    {
+      "type": "image_picker",
+      "id": "background_illustration",
+      "label": "Illustration image"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "The Gift Guide"
+    },
+    {
+      "type": "textarea",
+      "id": "description",
+      "label": "Description",
+      "default": "Discover Joy: Your Ultimate Holiday Gift Destination. Explore our curated selection and find the perfect gifts to delight your loved ones this holiday season."
+    },
+    {
+      "type": "text",
+      "id": "shop_now_text",
+      "label": "Shop now button text",
+      "default": "SHOP NOW"
+    },
+    {
+      "type": "url",
+      "id": "shop_now_link",
+      "label": "Shop now button link"
+    },
+    {
+      "type": "color",
+      "id": "shop_now_bg_color",
+      "label": "Shop now button background color",
+      "default": "#000000"
+    },
+    {
+      "type": "header",
+      "content": "Bottom strip"
+    },
+    {
+      "type": "text",
+      "id": "bottom_text",
+      "label": "Bottom text",
+      "default": "SUSTAINABLE, ETHICALLY MADE CLOTHES IN SIZES XXS TO 6XL"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Gift Guide Banner"
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,100 @@
+
+
+<section class="gift-grid" id="gift-grid-{{ section.id }}">
+  <div class="gift-grid__inner">
+    {% for block in section.blocks %}
+      {% assign product = block.settings.product %}
+      <div class="gift-grid__item" {{ block.shopify_attributes }}>
+        {% if product %}
+          <button
+            type="button"
+            class="gift-grid__image-wrap"
+            data-gift-hotspot
+            data-product-handle="{{ product.handle }}"
+            aria-label="View {{ product.title | escape }}"
+          >
+            <img
+              class="gift-grid__image"
+              src="{{ product.featured_image | image_url: width: 900 }}"
+              alt="{{ product.featured_image.alt | escape }}"
+              loading="lazy"
+              width="900"
+              height="921"
+            >
+            <span class="gift-grid__hotspot" aria-hidden="true">+</span>
+          </button>
+        {% else %}
+          <!-- Placeholder shown in the editor when no product is picked yet -->
+          <div class="gift-grid__image-wrap gift-grid__image-wrap--empty">
+            {{ 'product-1' | placeholder_svg_tag: 'gift-grid__placeholder' }}
+          </div>
+        {% endif %}
+      </div>
+    {% endfor %}
+  </div>
+</section>
+
+<!-- Popup markup (single instance, reused for whichever product is clicked) -->
+<div class="gift-popup" data-gift-popup hidden>
+  <div class="gift-popup__overlay" data-gift-popup-close></div>
+  <div class="gift-popup__panel" role="dialog" aria-modal="true" aria-label="Product details">
+    <button type="button" class="gift-popup__close" data-gift-popup-close aria-label="Close">&times;</button>
+
+    <div class="gift-popup__media">
+      <img data-gift-popup-image src="" alt="" class="gift-popup__image">
+    </div>
+
+    <div class="gift-popup__details">
+      <h2 class="gift-popup__title" data-gift-popup-title></h2>
+      <p class="gift-popup__price" data-gift-popup-price></p>
+      <div class="gift-popup__description" data-gift-popup-description></div>
+
+      <!-- Variant option pickers are injected here dynamically by gift-guide.js -->
+      <div class="gift-popup__options" data-gift-popup-options></div>
+
+      <button type="button" class="gift-popup__add-to-cart" data-gift-popup-add-to-cart>
+        Add to Cart
+      </button>
+      <p class="gift-popup__feedback" data-gift-popup-feedback aria-live="polite"></p>
+    </div>
+  </div>
+</div>
+
+{{ 'gift-guide.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'gift-guide.js' | asset_url }}" defer></script>
+
+{% schema %}
+{
+  "name": "Gift Guide Grid",
+  "tag": "section",
+  "class": "section-gift-grid",
+  "max_blocks": 6,
+  "settings": [],
+  "blocks": [
+    {
+      "type": "product",
+      "name": "Product",
+      "settings": [
+        {
+          "type": "product",
+          "id": "product",
+          "label": "Product"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Gift Guide Grid",
+      "blocks": [
+        { "type": "product" },
+        { "type": "product" },
+        { "type": "product" },
+        { "type": "product" },
+        { "type": "product" },
+        { "type": "product" }
+      ]
+    }
+  ]
+}
+{% endschema %}
