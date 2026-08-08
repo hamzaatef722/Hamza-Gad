@@ -370,6 +370,7 @@
   .gift-banner__content {
     margin-left: 0;
     max-width: 100%;
+    text-align: center;
     /* On mobile the illustration can sit directly behind the text
        (unlike desktop's wide layout), so we add a soft white scrim
        to keep the heading/description readable over busy imagery. */
@@ -378,12 +379,23 @@
     border-radius: 4px;
   }
 
+  .gift-banner__description {
+    max-width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .gift-banner__shopnow {
+    margin: 0 auto;
+  }
+
   .gift-banner__heading {
     font-size: 36px;
   }
 
   .gift-grid__inner {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
     padding: 24px 16px;
   }
 
