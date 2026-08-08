@@ -17,9 +17,8 @@
 (function () {
   'use strict';
 
-  // Cache references to the (single, reused) popup elements.
   var popup = document.querySelector('[data-gift-popup]');
-  if (!popup) return; // Grid section isn't on this page - nothing to do.
+  if (!popup) return;
 
   var overlayCloseEls = popup.querySelectorAll('[data-gift-popup-close]');
   var imageEl = popup.querySelector('[data-gift-popup-image]');
@@ -30,15 +29,9 @@
   var addToCartBtn = popup.querySelector('[data-gift-popup-add-to-cart]');
   var feedbackEl = popup.querySelector('[data-gift-popup-feedback]');
 
-  // Holds the currently loaded product + the user's current option selections.
   var currentProduct = null;
   var selectedOptions = [];
 
-  /**
-   * Formats a price given in cents into a currency string using the
-   * shop's active currency (falls back to a plain "$" prefix if the
-   * Shopify.currency object isn't available on the page).
-   */
   function formatMoney(cents) {
     var amount = (cents / 100).toFixed(2);
     if (window.Shopify && window.Shopify.currency && window.Shopify.currency.active) {
@@ -47,9 +40,6 @@
     return '$' + amount;
   }
 
-  /**
-   * Finds the variant that matches the currently selected options.
-   */
   function getSelectedVariant() {
     if (!currentProduct) return null;
     return currentProduct.variants.find(function (variant) {
@@ -61,17 +51,19 @@
 
   /**
    * Renders one <select> per product option (e.g. Size, Color).
+   * Shopify's /products/<handle>.js returns `options` as an array of
+   * OBJECTS - { name, position, values } - not plain strings.
    */
   function renderOptions(product) {
     optionsEl.innerHTML = '';
 
-    product.options.forEach(function (optionName, optionIndex) {
+    product.options.forEach(function (option, optionIndex) {
       var wrapper = document.createElement('div');
       wrapper.className = 'gift-popup__option';
 
       var label = document.createElement('label');
       label.className = 'gift-popup__option-label';
-      label.textContent = optionName;
+      label.textContent = option.name;
       label.setAttribute('for', 'gift-option-' + optionIndex);
 
       var select = document.createElement('select');
@@ -79,14 +71,7 @@
       select.id = 'gift-option-' + optionIndex;
       select.dataset.optionIndex = optionIndex;
 
-      // Collect the unique values available for this option, in order.
-      var values = [];
-      product.variants.forEach(function (variant) {
-        var value = variant.options[optionIndex];
-        if (values.indexOf(value) === -1) values.push(value);
-      });
-
-      values.forEach(function (value) {
+      option.values.forEach(function (value) {
         var opt = document.createElement('option');
         opt.value = value;
         opt.textContent = value;
@@ -105,11 +90,6 @@
     });
   }
 
-  /**
-   * Updates price/image/button state to reflect whichever variant
-   * is currently selected (or shows "unavailable" if that exact
-   * combination doesn't exist as a variant).
-   */
   function updateForSelectedVariant() {
     var variant = getSelectedVariant();
 
@@ -130,10 +110,6 @@
     feedbackEl.textContent = '';
   }
 
-  /**
-   * Fetches a product by handle and opens the popup populated with
-   * its data.
-   */
   function openPopupForHandle(handle) {
     fetch('/products/' + handle + '.js')
       .then(function (response) {
@@ -143,8 +119,6 @@
       .then(function (product) {
         currentProduct = product;
 
-        // Default selection = the first available variant's options,
-        // falling back to the very first variant.
         var defaultVariant =
           product.variants.find(function (v) { return v.available; }) || product.variants[0];
         selectedOptions = defaultVariant ? defaultVariant.options.slice() : [];
@@ -158,7 +132,7 @@
         updateForSelectedVariant();
 
         popup.hidden = false;
-        document.body.style.overflow = 'hidden'; // prevent background scroll
+        document.body.style.overflow = 'hidden';
       })
       .catch(function (error) {
         console.error('Gift Guide: could not load product', error);
@@ -172,10 +146,6 @@
     selectedOptions = [];
   }
 
-  /**
-   * Adds the currently selected variant to the cart via Shopify's
-   * AJAX Cart API, then gives the user visible feedback.
-   */
   function addSelectedVariantToCart() {
     var variantId = addToCartBtn.dataset.variantId;
     if (!variantId) return;
@@ -194,8 +164,6 @@
       })
       .then(function () {
         feedbackEl.textContent = 'Added to cart!';
-        // Let the rest of the theme know the cart changed, in case
-        // a cart-count bubble/drawer elsewhere on the page listens for it.
         document.dispatchEvent(new CustomEvent('cart:updated'));
       })
       .catch(function (error) {
@@ -207,7 +175,6 @@
       });
   }
 
-  // Event delegation: catches clicks on any hotspot, even ones added later.
   document.addEventListener('click', function (event) {
     var hotspot = event.target.closest('[data-gift-hotspot]');
     if (hotspot) {
