@@ -34,6 +34,9 @@
 }
 
 .gift-banner__cta {
+  position: relative;
+  overflow: hidden;
+  z-index: 0;
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -44,21 +47,39 @@
   color: #000;
   border: none;
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.gift-banner__cta:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+/* Sweep animation: on hover, a black layer slides in from the left,
+   covering the button's yellow resting background. */
+.gift-banner__cta::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background-color: #000000;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.35s ease;
+}
+
+.gift-banner__cta:hover::before {
+  transform: scaleX(1);
+}
+
+.gift-banner__cta-text,
+.gift-banner__cta-arrow {
+  position: relative;
+  z-index: 2;
+  transition: color 0.35s ease;
+}
+
+.gift-banner__cta:hover .gift-banner__cta-text,
+.gift-banner__cta:hover .gift-banner__cta-arrow {
+  color: #fff;
 }
 
 .gift-banner__cta-arrow {
   display: inline-block;
-  transition: transform 0.2s ease;
-}
-
-.gift-banner__cta:hover .gift-banner__cta-arrow {
-  transform: translateX(4px);
 }
 
 .gift-banner__hero {
@@ -102,6 +123,9 @@
 }
 
 .gift-banner__shopnow {
+  position: relative;
+  overflow: hidden;
+  z-index: 0;
   display: inline-flex;
   align-items: center;
   gap: 10px;
@@ -112,22 +136,35 @@
   font-size: 14px;
   border: none;
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.gift-banner__shopnow:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+/* Same left-to-right yellow sweep as the top CTA button. Text switches
+   to black on hover so it stays readable against the yellow fill. */
+.gift-banner__shopnow::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background-color: #fff544;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.35s ease;
 }
 
+.gift-banner__shopnow:hover::before {
+  transform: scaleX(1);
+}
+
+.gift-banner__shopnow-text,
 .gift-banner__shopnow-arrow {
-  display: inline-block;
-  transition: all 0.2s ease;
+  position: relative;
+  z-index: 2;
+  transition: color 0.35s ease;
 }
 
+.gift-banner__shopnow:hover .gift-banner__shopnow-text,
 .gift-banner__shopnow:hover .gift-banner__shopnow-arrow {
-  transform: translateX(4px);
-  color:#555
+  color: #000;
 }
 
 .gift-banner__bottom {
