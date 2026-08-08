@@ -17,8 +17,9 @@
 (function () {
   'use strict';
 
+  // Cache references to the (single, reused) popup elements.
   var popup = document.querySelector('[data-gift-popup]');
-  if (!popup) return;
+  if (!popup) return; // Grid section isn't on this page - nothing to do.
 
   var overlayCloseEls = popup.querySelectorAll('[data-gift-popup-close]');
   var imageEl = popup.querySelector('[data-gift-popup-image]');
@@ -29,9 +30,15 @@
   var addToCartBtn = popup.querySelector('[data-gift-popup-add-to-cart]');
   var feedbackEl = popup.querySelector('[data-gift-popup-feedback]');
 
+  // Holds the currently loaded product + the user's current option selections.
   var currentProduct = null;
   var selectedOptions = [];
 
+  /**
+   * Formats a price given in cents into a currency string using the
+   * shop's active currency (falls back to a plain "$" prefix if the
+   * Shopify.currency object isn't available on the page).
+   */
   function formatMoney(cents) {
     var amount = (cents / 100).toFixed(2);
     if (window.Shopify && window.Shopify.currency && window.Shopify.currency.active) {
@@ -40,6 +47,9 @@
     return '$' + amount;
   }
 
+  /**
+   * Finds the variant that matches the currently selected options.
+   */
   function getSelectedVariant() {
     if (!currentProduct) return null;
     return currentProduct.variants.find(function (variant) {
@@ -51,8 +61,11 @@
 
   /**
    * Renders one <select> per product option (e.g. Size, Color).
-   * Shopify's /products/<handle>.js returns `options` as an array of
-   * OBJECTS - { name, position, values } - not plain strings.
+   *
+   * Note: Shopify's /products/<handle>.js response returns `options` as
+   * an array of OBJECTS - { name, position, values } - not plain
+   * strings. We read `.name` and `.values` directly instead of
+   * re-deriving them from the variants list.
    */
   function renderOptions(product) {
     optionsEl.innerHTML = '';
@@ -90,6 +103,11 @@
     });
   }
 
+  /**
+   * Updates price/image/button state to reflect whichever variant
+   * is currently selected (or shows "unavailable" if that exact
+   * combination doesn't exist as a variant).
+   */
   function updateForSelectedVariant() {
     var variant = getSelectedVariant();
 
@@ -110,6 +128,10 @@
     feedbackEl.textContent = '';
   }
 
+  /**
+   * Fetches a product by handle and opens the popup populated with
+   * its data.
+   */
   function openPopupForHandle(handle) {
     fetch('/products/' + handle + '.js')
       .then(function (response) {
@@ -119,6 +141,8 @@
       .then(function (product) {
         currentProduct = product;
 
+        // Default selection = the first available variant's options,
+        // falling back to the very first variant.
         var defaultVariant =
           product.variants.find(function (v) { return v.available; }) || product.variants[0];
         selectedOptions = defaultVariant ? defaultVariant.options.slice() : [];
@@ -132,7 +156,7 @@
         updateForSelectedVariant();
 
         popup.hidden = false;
-        document.body.style.overflow = 'hidden';
+        document.body.style.overflow = 'hidden'; // prevent background scroll
       })
       .catch(function (error) {
         console.error('Gift Guide: could not load product', error);
@@ -144,6 +168,43 @@
     document.body.style.overflow = '';
     currentProduct = null;
     selectedOptions = [];
+  }
+
+  /**
+   * Adds the currently selected variant to the cart via Shopify's
+   * AJAX Cart API, then gives the user visible feedback.
+   */
+  /**
+   * Refreshes the header cart icon's item-count bubble after an
+   * Add to Cart, so the shopper sees the new total immediately
+   * without reloading the page.
+   *
+   * We use Shopify's standard "sections rendering" endpoint
+   * (documented, theme-agnostic) rather than relying on any theme's
+   * internal JS event system, which can vary or change between
+   * theme versions. If the theme doesn't expose a #cart-icon-bubble
+   * section (unlikely, but just in case), this silently does nothing
+   * and the count will still be correct on the next page load.
+   */
+  function refreshCartBubble() {
+    fetch('/?sections=cart-icon-bubble')
+      .then(function (response) { return response.json(); })
+      .then(function (sections) {
+        var html = sections['cart-icon-bubble'];
+        if (!html) return;
+
+        var temp = document.createElement('div');
+        temp.innerHTML = html;
+        var newBubble = temp.querySelector('#cart-icon-bubble');
+        var oldBubble = document.querySelector('#cart-icon-bubble');
+
+        if (newBubble && oldBubble) {
+          oldBubble.replaceWith(newBubble);
+        }
+      })
+      .catch(function (error) {
+        console.error('Gift Guide: could not refresh cart bubble', error);
+      });
   }
 
   function addSelectedVariantToCart() {
@@ -164,28 +225,8 @@
       })
       .then(function () {
         feedbackEl.textContent = 'Added to cart!';
-
-        // Horizon theme's header cart bubble listens for its own
-        // CartUpdateEvent (from the theme's internal @theme/events
-        // module) rather than a generic DOM CustomEvent. We fetch the
-        // fresh cart state and dispatch that event so the bubble count
-        // updates immediately without the shopper needing to refresh.
-        import('@theme/events')
-          .then(function (module) {
-            return fetch('/cart.js')
-              .then(function (res) { return res.json(); })
-              .then(function (cart) {
-                var event = new module.CartUpdateEvent(cart, 'gift-guide-popup', {
-                  itemCount: cart.item_count,
-                  source: 'gift-guide-popup',
-                  sections: {}
-                });
-                document.dispatchEvent(event);
-              });
-          })
-          .catch(function () {
-            document.dispatchEvent(new CustomEvent('cart:updated'));
-          });
+        refreshCartBubble();
+        document.dispatchEvent(new CustomEvent('cart:updated'));
       })
       .catch(function (error) {
         console.error('Gift Guide: add to cart failed', error);
@@ -196,6 +237,7 @@
       });
   }
 
+  // Event delegation: catches clicks on any hotspot, even ones added later.
   document.addEventListener('click', function (event) {
     var hotspot = event.target.closest('[data-gift-hotspot]');
     if (hotspot) {
