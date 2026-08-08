@@ -16,9 +16,8 @@
 }
 
 .gift-banner__logo {
+  font-size: 22px;
   font-weight: 600;
-    font-size: 22px;
-    font-weight: 600;
   letter-spacing: 0.15em;
   text-transform: uppercase;
   margin: 0;
