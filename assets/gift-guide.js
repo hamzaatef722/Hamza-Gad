@@ -164,7 +164,28 @@
       })
       .then(function () {
         feedbackEl.textContent = 'Added to cart!';
-        document.dispatchEvent(new CustomEvent('cart:updated'));
+
+        // Horizon theme's header cart bubble listens for its own
+        // CartUpdateEvent (from the theme's internal @theme/events
+        // module) rather than a generic DOM CustomEvent. We fetch the
+        // fresh cart state and dispatch that event so the bubble count
+        // updates immediately without the shopper needing to refresh.
+        import('@theme/events')
+          .then(function (module) {
+            return fetch('/cart.js')
+              .then(function (res) { return res.json(); })
+              .then(function (cart) {
+                var event = new module.CartUpdateEvent(cart, 'gift-guide-popup', {
+                  itemCount: cart.item_count,
+                  source: 'gift-guide-popup',
+                  sections: {}
+                });
+                document.dispatchEvent(event);
+              });
+          })
+          .catch(function () {
+            document.dispatchEvent(new CustomEvent('cart:updated'));
+          });
       })
       .catch(function (error) {
         console.error('Gift Guide: add to cart failed', error);
